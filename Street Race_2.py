@@ -262,11 +262,6 @@ while game:
         if e.type == pg.QUIT or e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:
             game = False
         elif e.type == pg.KEYDOWN and e.key == pg.K_p and start == 0:
-            if pause[0]:
-                timer1 = random.randrange(6000, 26001, 4000)
-                pg.time.set_timer(u1_event, timer1)
-                timer2 = random.randrange(7000, 27001, 5000)
-                pg.time.set_timer(u2_event, timer2)
             pause.reverse()
         elif e.type == pg.MOUSEMOTION and start == 0:
             if e.pos[0] < 40 and e.pos[1] > vol.rect.top:
@@ -292,11 +287,12 @@ while game:
             if e.button == 1:
                 if button_start_rect.collidepoint(e.pos):
                     player.angle = 0
+                    player.velocity.x, player.velocity.y = 0, 0
                     player.position = WIDTH - 20, HEIGHT - 70
                     player.update()
                     all_sprite.remove_sprites_of_layer(2)
-                    all_sprite.remove(water)
-                    all_sprite.remove(canister)
+                    water.kill()
+                    canister.kill()
                     for cr in cars_group:
                         cr.speed = random.randint(2, 3)
                         cr.rect.bottom = 0
@@ -307,13 +303,13 @@ while game:
                     pg.mouse.set_visible(False)
                 elif button_stop_rect.collidepoint(e.pos):
                     game = False
-        elif e.type == u1_event:
+        elif e.type == u1_event and not pause[0]:
             all_sprite.add(water, layer=0)
             water.rect.center = \
                 random.randrange(80, WIDTH, 80), -water.rect.h
             timer1 = random.randrange(6000, 26001, 4000)
             pg.time.set_timer(u1_event, timer1)
-        elif e.type == u2_event:
+        elif e.type == u2_event and not pause[0]:
             canister_group.add(canister)
             all_sprite.add(canister, layer=0)
             canister.rect.center = \
