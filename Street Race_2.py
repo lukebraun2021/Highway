@@ -58,23 +58,20 @@ pg.time.set_timer(u2_event, random.randrange(7000, 27001, 5000))
 
 class Player(pg.sprite.Sprite):
     def __init__(self):
-        super().__init__()
-
+        pg.sprite.Sprite.__init__(self)
         self.image = pg.image.load(os.path.join(path, 'img', 'car4.png'))
         self.orig_image = self.image
         self.angle = 0
         self.speed = 2
         self.acceleration = 0.02
-        self.rect = self.image.get_rect()
-        self.x, self.y = WIDTH - self.rect.w // 2, HEIGHT - self.rect.h
-        self.position = pg.math.Vector2(self.x, self.y)
+        self.rect = self.image.get_rect(center=(WIDTH - 20, HEIGHT - 70))
+        self.position = pg.math.Vector2()
         self.velocity = pg.math.Vector2()
 
     def update(self):
         self.image = pg.transform.rotate(self.orig_image, self.angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
         self.position += self.velocity
-        self.rect.center = int(self.position.x), int(self.position.y)
+        self.rect = self.image.get_rect(center=(self.position.x, self.position.y))
 
         keys = pg.key.get_pressed()
         if keys[pg.K_RIGHT]:
