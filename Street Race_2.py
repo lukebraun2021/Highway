@@ -128,10 +128,6 @@ class Alarm(pg.sprite.Sprite):
         self.rect.y += self.speed
         if self.rect.top > HEIGHT:
             self.kill()
-        if start == 255:
-            for s in all_sprite:
-                if s == self:
-                    s.kill()
 
 
 class Car(pg.sprite.Sprite):
@@ -234,8 +230,8 @@ water = Car(0, 0, water_image)
 vol = Volume(20, HEIGHT - 80)
 
 all_sprite.add(cars_group, layer=1)
-all_sprite.add(player, layer=2)
-all_sprite.add(fuel, layer=3)
+all_sprite.add(player, layer=3)
+all_sprite.add(fuel, layer=4)
 all_sprite.add(vol, layer=4)
 
 
@@ -290,12 +286,13 @@ while game:
             else:
                 vol.alpha -= 1
                 pg.mouse.set_visible(False)
-        elif e.type == pg.MOUSEBUTTONDOWN:
+        elif e.type == pg.MOUSEBUTTONDOWN and start == 255:
             if e.button == 1:
                 if button_start_rect.collidepoint(e.pos):
                     player.angle = 0
                     player.position = WIDTH - 20, HEIGHT - 70
                     player.update()
+                    all_sprite.remove_sprites_of_layer(2)
                     for cr in cars_group:
                         cr.speed = random.randint(2, 3)
                         cr.rect.bottom = 0
@@ -328,7 +325,7 @@ while game:
         player.angle = 50 * random.randrange(-1, 2, 2)
         hit.speed = 1
         car_alarm = Alarm()
-        all_sprite.add(car_alarm, layer=1)
+        all_sprite.add(car_alarm, layer=2)
         car_alarm.rect.center = hit.rect.center
         car_accident += 1
         if car_accident > 10:
