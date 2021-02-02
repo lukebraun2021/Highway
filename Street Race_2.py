@@ -307,7 +307,7 @@ while game:
                     pg.mouse.set_visible(False)
                 elif button_stop_rect.collidepoint(e.pos):
                     game = False
-        elif not pause[0]:
+        elif not pause[0] and start == 0:
             if e.type == u1_event:
                 all_sprite.add(water, layer=0)
                 water.rect.center = \
