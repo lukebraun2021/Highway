@@ -261,7 +261,12 @@ while game:
     for e in pg.event.get():
         if e.type == pg.QUIT or e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:
             game = False
-        elif e.type == pg.KEYDOWN and e.key == pg.K_p:
+        elif e.type == pg.KEYDOWN and e.key == pg.K_p and start == 0:
+            if pause[0]:
+                timer1 = random.randrange(6000, 26001, 4000)
+                pg.time.set_timer(u1_event, timer1)
+                timer2 = random.randrange(7000, 27001, 5000)
+                pg.time.set_timer(u2_event, timer2)
             pause.reverse()
         elif e.type == pg.MOUSEMOTION and start == 0:
             if e.pos[0] < 40 and e.pos[1] > vol.rect.top:
@@ -290,6 +295,8 @@ while game:
                     player.position = WIDTH - 20, HEIGHT - 70
                     player.update()
                     all_sprite.remove_sprites_of_layer(2)
+                    all_sprite.remove(water)
+                    all_sprite.remove(canister)
                     for cr in cars_group:
                         cr.speed = random.randint(2, 3)
                         cr.rect.bottom = 0
@@ -297,24 +304,22 @@ while game:
                     car_accident = 0
                     count[0] = 0
                     start -= 1
-                    pause[:] = False, True
                     pg.mouse.set_visible(False)
                 elif button_stop_rect.collidepoint(e.pos):
                     game = False
-        elif not pause[0] and start == 0:
-            if e.type == u1_event:
-                all_sprite.add(water, layer=0)
-                water.rect.center = \
-                    random.randrange(80, WIDTH, 80), -water.rect.h
-                timer1 = random.randrange(6000, 26001, 4000)
-                pg.time.set_timer(u1_event, timer1)
-            elif e.type == u2_event:
-                canister_group.add(canister)
-                all_sprite.add(canister, layer=0)
-                canister.rect.center = \
-                    random.randrange(80, WIDTH, 80), -canister.rect.h
-                timer = random.randrange(7000, 27001, 5000)
-                pg.time.set_timer(u2_event, timer)
+        elif e.type == u1_event:
+            all_sprite.add(water, layer=0)
+            water.rect.center = \
+                random.randrange(80, WIDTH, 80), -water.rect.h
+            timer1 = random.randrange(6000, 26001, 4000)
+            pg.time.set_timer(u1_event, timer1)
+        elif e.type == u2_event:
+            canister_group.add(canister)
+            all_sprite.add(canister, layer=0)
+            canister.rect.center = \
+                random.randrange(80, WIDTH, 80), -canister.rect.h
+            timer2 = random.randrange(7000, 27001, 5000)
+            pg.time.set_timer(u2_event, timer2)
 
     hit = pg.sprite.spritecollideany(player, cars_group)  # hit -> sprite car
     if hit and hit.speed != 1:
