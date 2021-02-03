@@ -455,8 +455,8 @@ while game:
         else:
             level -= 0.02
 
-        screen.fill(BG)
         all_sprites.update()
+        screen.fill(BG)
         all_sprites.draw(screen)
         pg.draw.rect(screen, (R, G, B), (710, 55 - level, 20, level))
         speedometer()
