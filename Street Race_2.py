@@ -145,7 +145,7 @@ class Car(pg.sprite.Sprite):
     def update(self):
         self.rect.y += self.speed
         if self.rect.top >= HEIGHT:
-            if self == canister or self == water:
+            if self is canister or self is water:
                 self.kill()
             else:
                 if 40 < player.rect.centerx < WIDTH - 40 \
@@ -367,8 +367,8 @@ while game:
         pg.draw.rect(
             screen, rgb,
             (fuel.rect.left + 10, fuel.rect.bottom - level - 8, 21, level))
-        screen.blit(font.render(f'accidents: {car_accident}', 1, GREEN), (46, 10))
-        screen.blit(font.render(f'{count[0]}', 1, GREEN), (46, HEIGHT - 30))
+        screen.blit(font.render(f'accidents: {car_accident}', True, GREEN), (46, 10))
+        screen.blit(font.render(f'{count[0]}', True, GREEN), (46, HEIGHT - 30))
 
     pg.display.update()
     clock.tick(FPS)
