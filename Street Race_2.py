@@ -8,7 +8,7 @@ record_file = os.path.join(path, 'record.txt')
 try:
     with open(record_file, 'x') as f:
         f.write(str(0))
-except BaseException:
+except (BaseException, OSError):
     pass
 
 SIZE = WIDTH, HEIGHT = 800, 600
@@ -71,7 +71,7 @@ class Player(pg.sprite.Sprite):
     def update(self):
         self.image = pg.transform.rotate(self.orig_image, self.angle)
         self.position += self.velocity
-        self.rect = self.image.get_rect(center=(self.position.x, self.position.y))
+        self.rect = self.image.get_rect(center=self.position)
 
         keys = pg.key.get_pressed()
         if keys[pg.K_RIGHT]:
@@ -211,14 +211,14 @@ player = Player()
 list_x = []
 n = 0
 while n < 6:
-    x = random.randrange(80, WIDTH, 80)
-    if x in list_x:
+    car_x = random.randrange(80, WIDTH, 80)
+    if car_x in list_x:
         continue
     else:
-        list_x.append(x)
-        cars_group.add(
-            Car(x, random.randint(-cars[0].get_height() * 3, -cars[0].get_height()),
-                cars[n] if n < 3 else random.choice(cars)))
+        list_x.append(car_x)
+        cars_group.add(Car(car_x, random.randint(
+            -cars[0].get_height() * 3, -cars[0].get_height()),
+            cars[n] if n < 3 else random.choice(cars)))
         n += 1
 
 fuel = Car(WIDTH - 80, 40, fuel_image)
@@ -226,7 +226,7 @@ canister = Car(0, 0, canister_image)
 water = Car(0, 0, water_image)
 vol = Volume(20, HEIGHT - 80)
 
-all_sprite.add(cars_group, layer=1)
+all_sprite.add(*cars_group, layer=1)
 all_sprite.add(player, layer=3)
 all_sprite.add(fuel, layer=4)
 all_sprite.add(vol, layer=4)
@@ -250,9 +250,9 @@ def home_screen():
     sc.blit(button_start, button_start_rect)
     sc.blit(button_stop, button_stop_rect)
     screen.blit(sc, (0, 0))
-    screen.blit(font.render(f'Record: {int(rec)}', 1, GREEN), (10, 10))
-    screen.blit(font.render(f'Points: {count[0]}', 1, GREEN), (10, 40))
-    screen.blit(font.render(f'Accidents: {car_accident}', 1, GREEN), (10, 70))
+    screen.blit(font.render(f'Record: {int(rec)}', True, GREEN), (10, 10))
+    screen.blit(font.render(f'Points: {count[0]}', True, GREEN), (10, 40))
+    screen.blit(font.render(f'Accidents: {car_accident}', True, GREEN), (10, 70))
 
 
 rec = my_record()
@@ -319,7 +319,7 @@ while game:
 
     hit = pg.sprite.spritecollideany(player, cars_group)  # hit -> sprite car
     if hit and hit.speed != 1:
-        player.position.x += 50 * random.randrange(-1, 2, 2)
+        player.position[0] += 50 * random.randrange(-1, 2, 2)
         player.angle = 50 * random.randrange(-1, 2, 2)
         hit.speed = 1
         car_alarm = Alarm()
