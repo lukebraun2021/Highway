@@ -196,7 +196,6 @@ class Varia(pg.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
 
     def update(self):
-        global level_game
         self.rect.y += self.speed
         if self.rect.y >= H:
             if self is canister or self is three or self is water:
