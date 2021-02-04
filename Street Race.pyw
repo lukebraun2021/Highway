@@ -14,7 +14,7 @@ car_accident = 0
 drove_cars = 0
 speed = 2
 acceleration = 0.05
-fscreen = [1, 2]
+f_screen = [1, 2]
 level = 40
 R, G, B = 0, 255, 0
 radius = 140
@@ -135,7 +135,7 @@ class Car(pg.sprite.Sprite):
             self.car_dy = False
             self.car_x = random.randrange(W // 2 + 80, W, 80)
         for img in cars:
-            if self.car_x == img.rect.x + img.w:
+            if self.car_x == img.rect.x + img.rect.w // 2:
                 block = 1
         if block == 0:
             num = random.randint(0, n)
@@ -164,7 +164,8 @@ class Car(pg.sprite.Sprite):
 class Background(pg.sprite.Sprite):
     def __init__(self, x, y, group):
         pg.sprite.Sprite.__init__(self)
-        self.image = pg.Surface((W, H), pg.SRCALPHA)
+        self.image = pg.Surface((W, H))
+        self.image.fill(BG)
         pg.draw.line(self.image, (0, 128, 0), [20, 0], [20, 600], 40)
         pg.draw.line(self.image, (0, 128, 0), [780, 0], [780, 600], 40)
         pg.draw.line(self.image, (0, 128, 0), [400, 0], [400, 600], 80)
@@ -184,7 +185,7 @@ class Background(pg.sprite.Sprite):
             self.rect.y = - H
 
 
-class Varia(pg.sprite.Sprite):
+class Other(pg.sprite.Sprite):
     def __init__(self, x, y, image, h):
         pg.sprite.Sprite.__init__(self)
         self.h = h
@@ -202,12 +203,12 @@ class Varia(pg.sprite.Sprite):
                 self.kill()
             if self in trees and level_game == 2:
                 index = random.randint(0, 5)
-                home = Varia(x=self.rect.x, y=self.rect.y, image=home_images[index], h=home_images[index].get_height())
+                home = Other(x=self.rect.x, y=self.rect.y, image=home_images[index], h=home_images[index].get_height())
                 self.kill()
                 homes.add(home)
                 all_sprites.add(home, layer=4)
             elif self in homes and level_game == 3:
-                flower = Varia(x=self.rect.x, y=self.rect.y, image=flower_image, h=flower_image.get_height())
+                flower = Other(x=self.rect.x, y=self.rect.y, image=flower_image, h=flower_image.get_height())
                 self.kill()
                 flowers.add(flower)
                 all_sprites.add(flower, layer=4)
@@ -225,12 +226,12 @@ player = Player(x=W // 2 + 80, y=H // 2, angle=0, image=player_image)
 car = Car(random.randrange(80, W // 2, 80), 0, CARS[random.randint(0, n)], True, cars)
 for i in range(2):
     bg = Background(x=0, y=0 if i == 0 else -H, group=roads)
-canister = Varia(x=random.randrange(W // 2 + 80, W, 80) - canister_image.get_width() // 2,
+canister = Other(x=random.randrange(W // 2 + 80, W, 80) - canister_image.get_width() // 2,
                  y=-canister_image.get_height(), image=canister_image,
                  h=canister_image.get_height())
-three = Varia(x=random.randrange(80, W // 2, 80) - image_3.get_width() // 2,
+three = Other(x=random.randrange(80, W // 2, 80) - image_3.get_width() // 2,
               y=-image_3.get_height(), image=image_3, h=image_3.get_height())
-water = Varia(x=random.randrange(80, W // 2, 80) - water_image.get_width() // 2,
+water = Other(x=random.randrange(80, W // 2, 80) - water_image.get_width() // 2,
               y=-water_image.get_height(), image=water_image, h=water_image.get_height())
 
 canisters = pg.sprite.Group(canister)
@@ -310,10 +311,10 @@ while game:
                 all_sprites.add(water, layer=1)
                 water.rect.center = random.randrange(W // 2 + 80, W, 80), - water.h * random.randint(15, 20)
         elif e.type == pg.KEYDOWN and e.key == pg.K_f:
-            fscreen.reverse()
-            if fscreen[0] == 1:
+            f_screen.reverse()
+            if f_screen[0] == 1:
                 screen = pg.display.set_mode((W, H))
-            elif fscreen[0] == 2:
+            elif f_screen[0] == 2:
                 screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
         elif e.type == pg.MOUSEBUTTONDOWN:
             if e.button == 1:
@@ -322,10 +323,10 @@ while game:
                     pg.mouse.set_visible(False)
                     for nx in range(3):
                         for ny in range(6):
-                            tree = Varia(x=nx * 380, y=-H + ny * 200, image=tree_image, h=tree_image.get_height())
+                            tree = Other(x=nx * 380, y=-H + ny * 200, image=tree_image, h=tree_image.get_height())
                             trees.add(tree)
                             all_sprites.add(tree, layer=4)
-                    all_sprites.add(roads, layer=0)
+                    all_sprites.add(*roads, layer=0)
                     all_sprites.add(player, layer=3)
                     player.position.x, player.position.y = W // 2 + 80, H // 2
                     player.angle = 0
@@ -456,7 +457,6 @@ while game:
             level -= 0.02
 
         all_sprites.update()
-        screen.fill(BG)
         all_sprites.draw(screen)
         pg.draw.rect(screen, (R, G, B), (710, 55 - level, 20, level))
         speedometer()

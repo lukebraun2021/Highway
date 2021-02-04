@@ -1,6 +1,7 @@
 import pygame as pg
 import random
 import os
+import math
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 path = os.path.dirname(os.path.abspath(__file__))
@@ -201,11 +202,54 @@ class Volume(pg.sprite.Sprite):
         pg.draw.circle(self.image, (0, 255, 0), (self.x, self.y), self.radius)
 
 
+class Speedometer(pg.sprite.Sprite):
+    def __init__(self):
+        pg.sprite.Sprite.__init__(self)
+        w, h = 150, 150
+        value = 0
+        radius = 140
+        self.image = pg.Surface((w, h), pg.SRCALPHA)
+        self.rect = self.image.get_rect(bottomright=(WIDTH, HEIGHT))
+        self.text = pg.font.SysFont('Arial', 16, True, False)
+        txt_km = self.text.render('km/h', True, WHITE, None)
+        txt_km_pos = w - 55, h - 50
+        self.image.blit(txt_km, txt_km_pos)
+        for deg in range(5, 84, 6):
+            length = 18 if deg == 5 or deg == 23 or deg == 41 or deg == 59 or deg == 77 else 10
+            cos = math.cos(math.radians(deg))
+            sin = math.sin(math.radians(deg))
+            pg.draw.line(
+                self.image, WHITE,
+                (w - radius * cos, h - radius * sin),
+                (w - (radius - length) * cos, h - (radius - length) * sin), 2)
+        for deg in range(9, 78, 17):
+            cos = math.cos(math.radians(deg))
+            sin = math.sin(math.radians(deg))
+            self.image.blit(
+                self.text.render(str(value), True, WHITE, None),
+                (w - (radius - 30) * cos, h - (radius - 30) * sin))
+            value += 100
+        self.red = (255, 0, 0)
+        self.radius = radius
+
+    def render(self):
+        s = 30 - player.velocity.y * 25
+        if s <= 4:
+            s = 4
+        pg.draw.line(
+            screen, self.red, (WIDTH, HEIGHT),
+            (WIDTH - (self.radius - 10) * math.cos(math.radians(s)),
+             HEIGHT - (self.radius - 10) * math.sin(math.radians(s))), 4)
+        pg.draw.circle(screen, WHITE, (WIDTH, HEIGHT), 25)
+
+
 all_sprite = pg.sprite.LayeredUpdates()
 cars_group = pg.sprite.Group()
 canister_group = pg.sprite.Group()
 for r in range(2):
     all_sprite.add(Road(0, 0 if r == 0 else -HEIGHT), layer=0)
+speedometer = Speedometer()
+all_sprite.add(speedometer, layer=0)
 player = Player()
 
 list_x = []
@@ -265,8 +309,8 @@ while game:
             pause.reverse()
         elif e.type == pg.MOUSEMOTION and start == 0:
             if e.pos[0] < 40 and e.pos[1] > vol.rect.top:
+                # vol.alpha = 70
                 pg.mouse.set_visible(True)
-                vol.alpha = 70
                 if vol.rect.left < e.pos[0] < vol.rect.right and \
                         vol.rect.top < e.pos[1] < vol.rect.bottom and \
                         e.buttons[0]:
@@ -281,14 +325,14 @@ while game:
                     sound_canister.set_volume(volume)
                     sound_accident.set_volume(volume)
             else:
-                vol.alpha -= 1
+                # vol.alpha -= 1
                 pg.mouse.set_visible(False)
         elif e.type == pg.MOUSEBUTTONDOWN and start == 255:
             if e.button == 1:
                 if button_start_rect.collidepoint(e.pos):
                     player.angle = 0
                     player.velocity.x, player.velocity.y = 0, 0
-                    player.position = WIDTH - 20, HEIGHT - 70
+                    player.position.x, player.position.y = WIDTH - 20, HEIGHT - 70
                     player.update()
                     all_sprite.remove_sprites_of_layer(2)
                     water.kill()
@@ -319,7 +363,7 @@ while game:
 
     hit = pg.sprite.spritecollideany(player, cars_group)  # hit -> sprite car
     if hit and hit.speed != 1:
-        player.position[0] += 50 * random.randrange(-1, 2, 2)
+        player.position.x += 50 * random.randrange(-1, 2, 2)
         player.angle = 50 * random.randrange(-1, 2, 2)
         hit.speed = 1
         car_alarm = Alarm()
@@ -340,8 +384,8 @@ while game:
     else:
         block = False
 
-    if vol.alpha < 70:
-        vol.alpha = 0 if vol.alpha <= 0 else vol.alpha - 1
+    # if vol.alpha < 70:
+    #    vol.alpha = 0 if vol.alpha <= 0 else vol.alpha - 1
     if start > 0:
         home_screen()
         if start != 255:
@@ -364,6 +408,7 @@ while game:
         else:
             vol.update()
         all_sprite.draw(screen)
+        speedometer.render()  # speedometer
         pg.draw.rect(
             screen, rgb,
             (fuel.rect.left + 10, fuel.rect.bottom - level - 8, 21, level))
