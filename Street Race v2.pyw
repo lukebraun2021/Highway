@@ -6,7 +6,7 @@ import math
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 path = os.path.dirname(os.path.abspath(__file__))
-record_file = os.path.join(path, 'record.txt')
+record_file = os.path.join(path, 'Record', 'record.txt')
 try:
     with open(record_file, 'x') as f:
         f.write(str(0))
