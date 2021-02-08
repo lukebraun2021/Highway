@@ -208,12 +208,12 @@ class Volume(pg.sprite.Sprite):
             self.image, self.color_rect, [0, 0, *self.rect[2:]],
             border_radius=self.radius)
         pg.draw.circle(self.image, self.color_circle, (self.x, self.y), self.radius)
-        text = str(int(self.volume * 100)) if self.volume < 0.92 else str(100)
+        text = str(round(self.volume * 100))
         text_rect = font.get_rect(text, size=11)
         font.render_to(
             self.image, (self.x - text_rect[2] / 2., self.y - text_rect[3] / 2.), text,
             self.color_text, rotation=0, size=11)
-        sp = "\U0001F507" if self.volume < 0.01 else "\U0001F508" if self.volume < 0.2 \
+        sp = "\U0001F507" if self.volume == 0 else "\U0001F508" if self.volume < 0.2 \
             else "\U0001F509" if self.volume < 0.7 else "\U0001F50A"
         font.render_to(
             screen, (self.rect.x, self.rect.y - font.size), sp, [*WHITE, self.alpha])
@@ -227,7 +227,7 @@ class Volume(pg.sprite.Sprite):
                 self.y = self.rect.h - self.radius
             elif self.y < self.radius:
                 self.y = self.radius
-            self.volume = 1 - self.y / float(self.rect.h - self.radius)
+            self.volume = (100 - (self.y - 10) / 1.2) / 100.
             sound_car_accident.set_volume(self.volume)
             sound_canister.set_volume(self.volume)
             sound_accident.set_volume(self.volume)
