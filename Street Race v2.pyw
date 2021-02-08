@@ -1,4 +1,5 @@
 import pygame as pg
+import pygame.freetype
 import random
 import os
 import math
@@ -32,7 +33,7 @@ screen = pg.display.set_mode(SIZE)
 
 FPS = 120
 clock = pg.time.Clock()
-font = pg.font.Font(None, 32)
+font = pygame.freetype.Font(os.path.join(path, 'font', 'seguisym.ttf'), 30)
 
 cars = [pg.image.load(os.path.join(path, 'img', 'car1.png')),
         pg.image.load(os.path.join(path, 'img', 'car2.png')),
@@ -200,7 +201,6 @@ class Volume(pg.sprite.Sprite):
         self.color_text = (255, 255, 255)
         self.alpha = 255
         self.volume = 1
-        self.font_vol = pg.font.Font(None, 15)
 
     def update(self):
         self.image.set_alpha(self.alpha)
@@ -209,10 +209,14 @@ class Volume(pg.sprite.Sprite):
             border_radius=self.radius)
         pg.draw.circle(self.image, self.color_circle, (self.x, self.y), self.radius)
         text = str(int(self.volume * 100)) if self.volume < 0.92 else str(100)
-        text_size = self.font_vol.size(text)
-        self.image.blit(
-            self.font_vol.render(text, True, self.color_text),
-            (self.x - text_size[0] // 2, self.y - text_size[1] // 2))
+        text_rect = font.get_rect(text, size=11)
+        font.render_to(
+            self.image, (self.x - text_rect[2] / 2., self.y - text_rect[3] / 2.), text,
+            self.color_text, rotation=0, size=11)
+        sp = "\U0001F508" if self.volume < 0.2 else "\U0001F509" \
+            if self.volume < 0.7 else "\U0001F50A"
+        font.render_to(
+            screen, (self.rect.x, self.rect.y - font.size), sp, (*WHITE, self.alpha))
 
     def render(self, e_buttons, e_pos):
         if self.rect.left < e_pos[0] < self.rect.right and \
@@ -236,10 +240,7 @@ class Speedometer(pg.sprite.Sprite):
         self.radius = 140
         self.image = pg.Surface((w, h), pg.SRCALPHA)
         self.rect = self.image.get_rect(bottomright=(WIDTH, HEIGHT))
-        self.text = pg.font.SysFont('Arial', 16, True, False)
-        txt_km = self.text.render('km/h', True, WHITE, None)
-        txt_km_pos = w - 50, h - 50
-        self.image.blit(txt_km, txt_km_pos)
+        font.render_to(self.image, (w - 50, h - 50), 'km/h', WHITE, size=20)
         for deg in range(5, 84, 6):
             length = 18 if deg == 5 or deg == 23 or deg == 41 or deg == 59 or deg == 77 else 10
             cos = math.cos(math.radians(deg))
@@ -251,9 +252,9 @@ class Speedometer(pg.sprite.Sprite):
         for value, deg in enumerate(range(9, 78, 17)):
             cos = math.cos(math.radians(deg))
             sin = math.sin(math.radians(deg))
-            self.image.blit(
-                self.text.render(str(value * 100), True, WHITE, None),
-                (w - (self.radius - 30) * cos, h - (self.radius - 30) * sin))
+            font.render_to(self.image, (
+                w - (self.radius - 30) * cos, h - (self.radius - 30) * sin),
+                str(value * 100), WHITE, size=15)
 
     def render(self):
         s = 30 - player.velocity.y * 25
@@ -264,6 +265,7 @@ class Speedometer(pg.sprite.Sprite):
             (self.rect.right - (self.radius - 10) * math.cos(math.radians(s)),
              self.rect.bottom - (self.radius - 10) * math.sin(math.radians(s))), 4)
         pg.draw.circle(screen, WHITE, self.rect.bottomright, 25)
+        vol.update()
 
 
 all_sprite = pg.sprite.LayeredUpdates()
@@ -317,9 +319,9 @@ def home_screen():
     button_stop.set_alpha(start)
     screen.blit(button_start, button_start_rect)
     screen.blit(button_stop, button_stop_rect)
-    screen.blit(font.render(f'Record: {int(rec)}', True, RED), (46, 10))
-    screen.blit(font.render(f'Points: {count[0]}', True, RED), (46, 40))
-    screen.blit(font.render(f'Accidents: {car_accident}', True, RED), (46, 70))
+    font.render_to(screen, (48, 10), f'Record: {int(rec)}', RED, size=24)
+    font.render_to(screen, (48, 40), f'Points: {count[0]}', RED, size=24)
+    font.render_to(screen, (48, 70), f'Accidents: {car_accident}', RED, size=24)
     vol.update()
     screen.blit(vol.image, vol.rect)
 
@@ -420,12 +422,13 @@ while game:
             all_sprite.update()
         else:
             vol.update()
+
         all_sprite.draw(screen)
         pg.draw.rect(
             screen, rgb,
             (fuel.rect.left + 10, fuel.rect.bottom - level - 8, 21, level))
-        screen.blit(font.render(f'accidents: {car_accident}', True, GREEN), (46, 10))
-        screen.blit(font.render(f'{count[0]}', True, GREEN), (46, HEIGHT - 30))
+        font.render_to(screen, (48, 10), f'accidents: {car_accident}', GREEN, size=24)
+        font.render_to(screen, (48, HEIGHT - 30), f'{count[0]}', GREEN, size=24)
 
     speedometer.render()  # speedometer
     pg.display.update()
