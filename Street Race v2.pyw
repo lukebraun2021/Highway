@@ -213,8 +213,8 @@ class Volume(pg.sprite.Sprite):
         font.render_to(
             self.image, (self.x - text_rect[2] / 2., self.y - text_rect[3] / 2.), text,
             self.color_text, rotation=0, size=11)
-        sp = "\U0001F508" if self.volume < 0.2 else "\U0001F509" \
-            if self.volume < 0.7 else "\U0001F50A"
+        sp = "\U0001F507" if self.volume == 0 else "\U0001F508" if self.volume < 0.2 \
+            else "\U0001F509" if self.volume < 0.7 else "\U0001F50A"
         font.render_to(
             screen, (self.rect.x, self.rect.y - font.size), sp, [*WHITE, self.alpha])
 
