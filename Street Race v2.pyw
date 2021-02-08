@@ -227,7 +227,7 @@ class Volume(pg.sprite.Sprite):
                 self.y = self.rect.h - self.radius
             elif self.y < self.radius:
                 self.y = self.radius
-            self.volume = (100 - (self.y - 10) / 1.2) / 100.
+            self.volume = (100 - (self.y - self.radius) / 1.2) / 100.
             sound_car_accident.set_volume(self.volume)
             sound_canister.set_volume(self.volume)
             sound_accident.set_volume(self.volume)
