@@ -205,7 +205,7 @@ class Volume(pg.sprite.Sprite):
     def update(self):
         self.image.set_alpha(self.alpha)
         pg.draw.rect(
-            self.image, self.color_rect, (0, 0, *self.rect[2:]),
+            self.image, self.color_rect, [0, 0, *self.rect[2:]],
             border_radius=self.radius)
         pg.draw.circle(self.image, self.color_circle, (self.x, self.y), self.radius)
         text = str(int(self.volume * 100)) if self.volume < 0.92 else str(100)
@@ -216,7 +216,7 @@ class Volume(pg.sprite.Sprite):
         sp = "\U0001F508" if self.volume < 0.2 else "\U0001F509" \
             if self.volume < 0.7 else "\U0001F50A"
         font.render_to(
-            screen, (self.rect.x, self.rect.y - font.size), sp, (*WHITE, self.alpha))
+            screen, (self.rect.x, self.rect.y - font.size), sp, [*WHITE, self.alpha])
 
     def render(self, e_buttons, e_pos):
         if self.rect.left < e_pos[0] < self.rect.right and \
@@ -253,7 +253,7 @@ class Speedometer(pg.sprite.Sprite):
             cos = math.cos(math.radians(deg))
             sin = math.sin(math.radians(deg))
             font.render_to(self.image, (
-                w - (self.radius - 30) * cos, h - (self.radius - 30) * sin),
+                round(w - (self.radius - 30) * cos), round(h - (self.radius - 30) * sin)),
                 str(value * 100), WHITE, size=15)
 
     def render(self):
