@@ -56,7 +56,7 @@ water_image = pg.image.load(os.path.join(path, 'img', 'water.png'))
 u1_event = pg.USEREVENT + 1
 pg.time.set_timer(u1_event, random.randrange(6000, 26001, 4000))
 u2_event = pg.USEREVENT + 2
-pg.time.set_timer(u2_event, random.randrange(7000, 27001, 5000))
+pg.time.set_timer(u2_event, random.randrange(12000, 27001, 2500))
 
 
 class Player(pg.sprite.Sprite):
@@ -362,18 +362,18 @@ while game:
                     pg.mouse.set_visible(False)
                 elif button_stop_rect.collidepoint(e.pos):
                     game = False
-        elif e.type == u1_event and not water.alive():
+        elif e.type == u1_event and not pause[0] and not all_sprite.has(water):  # water.alive():
             all_sprite.add(water, layer=0)
             water.rect.center = \
                 random.randrange(80, WIDTH, 80), -water.rect.h
             timer1 = random.randrange(6000, 26001, 4000)
             pg.time.set_timer(u1_event, timer1)
-        elif e.type == u2_event and not canister_group.has(canister):
+        elif e.type == u2_event and not pause[0] and not canister_group.has(canister):
             canister_group.add(canister)
             all_sprite.add(canister, layer=0)
             canister.rect.center = \
                 random.randrange(80, WIDTH, 80), -canister.rect.h
-            timer2 = random.randrange(7000, 27001, 5000)
+            timer2 = random.randrange(12000, 27001, 2500)
             pg.time.set_timer(u2_event, timer2)
 
     hit = pg.sprite.spritecollideany(player, cars_group)  # hit -> sprite car
