@@ -70,6 +70,8 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect(center=(WIDTH - 20, HEIGHT - 70))
         self.position = pg.math.Vector2()
         self.velocity = pg.math.Vector2()
+        self.vx = 0
+        self.k = 0.4
 
     def update(self):
         self.image = pg.transform.rotate(self.orig_image, self.angle)
@@ -80,14 +82,19 @@ class Player(pg.sprite.Sprite):
         if keys[pg.K_RIGHT]:
             self.velocity.x = self.speed
             self.angle -= 1
+            if player.velocity.y == 0:
+                self.vx -= self.acceleration * self.k
             if self.angle < -25:
                 self.angle = -25
         elif keys[pg.K_LEFT]:
             self.velocity.x = -self.speed
             self.angle += 1
+            if player.velocity.y == 0:
+                self.vx -= self.acceleration * self.k
             if self.angle > 25:
                 self.angle = 25
         else:
+            self.vx += self.acceleration * self.k if self.vx < 0 else 0
             self.velocity.x = 0
             if self.angle < 0:
                 self.angle += 1
@@ -110,6 +117,8 @@ class Player(pg.sprite.Sprite):
                 self.velocity.y -= self.acceleration
                 if self.velocity.y < 0:
                     self.velocity.y = 0
+        if self.vx < -self.k:
+            self.vx = -self.k
 
 
 class Alarm(pg.sprite.Sprite):
@@ -257,7 +266,7 @@ class Speedometer(pg.sprite.Sprite):
                 str(value * 100), WHITE, size=15)
 
     def render(self):
-        s = 30 - player.velocity.y * 25
+        s = 30 - (player.velocity.y if player.velocity.y != 0 else player.vx) * 25
         if s <= player.speed * 2:
             s = player.speed * 2
         pg.draw.line(
