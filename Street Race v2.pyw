@@ -56,7 +56,7 @@ water_image = pg.image.load(os.path.join(path, 'img', 'water.png'))
 u1_event = pg.USEREVENT + 1
 pg.time.set_timer(u1_event, random.randrange(6000, 26001, 4000))
 u2_event = pg.USEREVENT + 2
-pg.time.set_timer(u2_event, random.randrange(12000, 27001, 2500))
+pg.time.set_timer(u2_event, random.randrange(13000, 28001, 5000))
 
 
 class Player(pg.sprite.Sprite):
@@ -70,8 +70,7 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect(center=(WIDTH - 20, HEIGHT - 70))
         self.position = pg.math.Vector2()
         self.velocity = pg.math.Vector2()
-        self.vx = 0
-        self.k = 0.4
+        self.vx = 0  # velocity.x for speedometer
 
     def update(self):
         self.image = pg.transform.rotate(self.orig_image, self.angle)
@@ -82,19 +81,17 @@ class Player(pg.sprite.Sprite):
         if keys[pg.K_RIGHT]:
             self.velocity.x = self.speed
             self.angle -= 1
-            if player.velocity.y == 0:
-                self.vx -= self.acceleration * self.k
+            self.vx -= self.acceleration
             if self.angle < -25:
                 self.angle = -25
         elif keys[pg.K_LEFT]:
             self.velocity.x = -self.speed
             self.angle += 1
-            if player.velocity.y == 0:
-                self.vx -= self.acceleration * self.k
+            self.vx -= self.acceleration
             if self.angle > 25:
                 self.angle = 25
         else:
-            self.vx += self.acceleration * self.k if self.vx < 0 else 0
+            self.vx += self.acceleration if self.vx < 0 else 0
             self.velocity.x = 0
             if self.angle < 0:
                 self.angle += 1
@@ -117,8 +114,15 @@ class Player(pg.sprite.Sprite):
                 self.velocity.y -= self.acceleration
                 if self.velocity.y < 0:
                     self.velocity.y = 0
-        if self.vx < -self.k:
-            self.vx = -self.k
+
+    def for_speedometer(self):
+        if self.vx <= -0.4:
+            self.vx = -0.4  # left-right speedometer max
+        if self.velocity.y < self.vx or self.velocity.y > 0:
+            self.vx = self.velocity.y
+            if self.vx >= 1.04:
+                self.vx = 1.04  # speedometer min for speed=2
+        return self.vx
 
 
 class Alarm(pg.sprite.Sprite):
@@ -266,9 +270,7 @@ class Speedometer(pg.sprite.Sprite):
                 str(value * 100), WHITE, size=15)
 
     def render(self):
-        s = 30 - (player.velocity.y if player.velocity.y != 0 else player.vx) * 25
-        if s <= player.speed * 2:
-            s = player.speed * 2
+        s = 30 - player.for_speedometer() * 25  # from 4 to 80
         pg.draw.line(
             screen, RED, self.rect.bottomright,
             (self.rect.right - (self.radius - 10) * math.cos(math.radians(s)),
@@ -382,7 +384,7 @@ while game:
             all_sprite.add(canister, layer=0)
             canister.rect.center = \
                 random.randrange(80, WIDTH, 80), -canister.rect.h
-            timer2 = random.randrange(12000, 27001, 2500)
+            timer2 = random.randrange(13000, 28001, 5000)
             pg.time.set_timer(u2_event, timer2)
 
     hit = pg.sprite.spritecollideany(player, cars_group)  # hit -> sprite car
