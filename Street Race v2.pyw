@@ -25,6 +25,7 @@ count = [0]
 car_accident = 0
 level = 40
 start = 255
+blink = 0
 hit_old = None
 
 pg.init()
@@ -323,14 +324,15 @@ def my_record():
     return record
 
 
-def home_screen():
+def home_screen(b):
     screen.blit(all_sprite.get_sprite(0).image, (0, 0))
     screen.blit(speedometer.image, speedometer.rect)
     button_start.set_alpha(start)
     button_stop.set_alpha(start)
     screen.blit(button_start, button_start_rect)
     screen.blit(button_stop, button_stop_rect)
-    font.render_to(screen, (48, 10), f'Record: {int(rec)}', RED, size=24)
+    font.render_to(screen, (48, 10), f'Record: {rec}', [
+        *RED, 255 if count[0] <= record_old else 255 if int(b) % 2 else 0], size=24)
     font.render_to(screen, (48, 40), f'Points: {count[0]}', RED, size=24)
     font.render_to(screen, (48, 70), f'Accidents: {car_accident}', RED, size=24)
     vol.update()
@@ -338,6 +340,7 @@ def home_screen():
 
 
 rec = my_record()
+record_old = int(rec)
 game = True
 while game:
     for e in pg.event.get():
@@ -370,6 +373,7 @@ while game:
                     car_accident = 0
                     count[0] = 0
                     start -= 1
+                    record_old = int(rec)
                     pg.mouse.set_visible(False)
                 elif button_stop_rect.collidepoint(e.pos):
                     game = False
@@ -411,7 +415,8 @@ while game:
         block = False
 
     if start > 0:
-        home_screen()
+        home_screen(blink)
+        blink = 0 if blink > 99 else blink + .02
         if start != 255:
             start -= 1
             vol.alpha = start
