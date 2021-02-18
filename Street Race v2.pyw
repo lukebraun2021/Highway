@@ -28,7 +28,21 @@ start = 255
 blink = 0
 hit_old = None
 
+
+def icon():
+    size, text = 32, '\u0056\u004F'
+    sur = pg.Surface((size, size), pg.SRCALPHA)
+    pg.draw.circle(
+        sur, '#44475a80', (size // 2, size // 2), size // 2)
+    font_text = pg.freetype.SysFont('Arial', 16, True)
+    rect = font_text.get_rect(text)
+    x, y = (size - rect.width) // 2, (size - rect.height) // 2
+    font_text.render_to(sur, (x, y), text, fgcolor='#ff0000')
+    pg.display.set_icon(sur)
+
+
 pg.init()
+icon()
 pg.display.set_caption('Rally')
 screen = pg.display.set_mode(SIZE)
 
